@@ -45,9 +45,21 @@ Interactive Robotics Demo
 - **Python**: 3.9+
 - **Conda**: Miniconda/Anaconda installed
 
-### Installation
+### 🎯 **Option A: Use This Repository (Recommended)**
 
-1. **Clone the Home-Robot repository**:
+**Clone this InteractiveRobotics repository with all dependencies:**
+```bash
+# Clone with home-robot submodule included
+git clone --recurse-submodules https://github.com/jinyoonok2/InteractiveRobotics.git
+cd InteractiveRobotics
+
+# The home-robot directory is automatically included as a submodule
+export HOME_ROBOT_ROOT=$(pwd)/home-robot
+```
+
+### 🔧 **Option B: Manual Home-Robot Setup**
+
+1. **Clone the original Home-Robot repository**:
    ```bash
    git clone --recurse-submodules https://github.com/facebookresearch/home-robot.git
    cd home-robot
@@ -114,11 +126,21 @@ Interactive Robotics Demo
 
 ## 🎮 Running the Demo
 
-**Interactive Habitat Demo**:
+**After installation (either Option A or B), run the interactive demo:**
 ```bash
-cd /path/to/InteractiveRobotics
+# Navigate to your InteractiveRobotics directory
+cd InteractiveRobotics  # (if using Option A)
+# OR cd /path/to/your/setup  # (if using Option B)
+
+# Activate environment and run
 conda activate home-robot
 python interactive_habitat_demo.py
+```
+
+**Verify your setup:**
+```bash
+# Run the installation checker to verify everything works
+python check_installation.py
 ```
 
 **Controls**:
