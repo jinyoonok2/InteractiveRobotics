@@ -47,14 +47,28 @@ Interactive Robotics Demo
 
 ### 🎯 **Option A: Use This Repository (Recommended)**
 
+⚠️ **IMPORTANT: You MUST use `--recurse-submodules` or the setup will be broken!**
+
 **Clone this InteractiveRobotics repository with all dependencies:**
 ```bash
-# Clone with home-robot submodule included
+# ✅ CORRECT: Clone with home-robot submodule included
 git clone --recurse-submodules https://github.com/jinyoonok2/InteractiveRobotics.git
 cd InteractiveRobotics
 
 # The home-robot directory is automatically included as a submodule
 export HOME_ROBOT_ROOT=$(pwd)/home-robot
+```
+
+**❌ DON'T do this (will give you an empty home-robot directory):**
+```bash
+# This will NOT work - missing --recurse-submodules
+git clone https://github.com/jinyoonok2/InteractiveRobotics.git  
+```
+
+**🔧 If you already cloned without `--recurse-submodules`, fix it:**
+```bash
+cd InteractiveRobotics
+git submodule update --init --recursive
 ```
 
 ### 🔧 **Option B: Manual Home-Robot Setup**
