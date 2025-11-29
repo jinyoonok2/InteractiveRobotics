@@ -1,0 +1,330 @@
+# Interactive Robotics .gitignore
+# Prevents accidental upload of large datasets, models, and temporary files
+
+# =============================================================================
+# HABITAT & HOME-ROBOT DATA FILES
+# =============================================================================
+
+# Complete dataset directories (downloaded by ./download_data.sh)
+home-robot/data/
+**/hssd-hab/
+**/objects/
+**/datasets/ovmm/
+**/robots/hab_stretch/
+
+# Scene datasets (large 3D assets)
+**/data/scene_datasets/
+**/scene_datasets/
+*.glb
+*.gltf
+*.obj
+*.ply
+*.dae
+*.STL
+*.stl
+
+# Episode datasets and task definitions
+**/data/datasets/
+**/datasets/
+*.json.gz
+episodes/
+content/
+
+# Model checkpoints and weights
+*.pth
+*.pt
+*.ckpt
+*.h5
+*.pkl
+*.pickle
+model_weights/
+checkpoints/
+pretrained_models/
+
+# Navigation meshes and semantic data
+*.navmesh
+navmeshes/
+semantics/
+scene_filter_files/
+
+# Git LFS and dataset metadata
+.git/lfs/
+*.zip
+*.tar.gz
+*.7z
+
+# Robot model files
+urdf/
+meshes/
+*.urdf
+*.mtl
+
+# =============================================================================
+# PYTHON
+# =============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# =============================================================================
+# MACHINE LEARNING & AI
+# =============================================================================
+
+# PyTorch
+*.pth
+*.pt
+
+# TensorFlow
+*.pb
+*.tflite
+saved_model/
+
+# Weights & Biases
+wandb/
+
+# MLflow
+mlruns/
+
+# Tensorboard logs
+runs/
+logs/
+tensorboard_logs/
+
+# =============================================================================
+# SIMULATION & ROBOTICS
+# =============================================================================
+
+# Simulation outputs
+simulation_outputs/
+recorded_episodes/
+*.mp4
+*.avi
+*.gif
+
+# Robot logs
+robot_logs/
+trajectory_logs/
+
+# Gazebo
+.gazebo/
+
+# ROS
+devel/
+build/
+install/
+*.bag
+
+# =============================================================================
+# DEVELOPMENT TOOLS
+# =============================================================================
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# =============================================================================
+# PROJECT SPECIFIC
+# =============================================================================
+
+# Generated images and videos from demos
+habitat_view_*.png
+simulation_*.png
+demo_*.mp4
+recorded_*.avi
+
+# Temporary experiment files
+experiments/
+tmp/
+temp/
+scratch/
+
+# Configuration overrides (keep templates, ignore local configs)
+*_local.yaml
+*_local.yml
+*_local.json
+local_config.*
+
+# Output directories
+output/
+results/
+reports/
+
+# =============================================================================
+# LARGE FILES & ARCHIVES
+# =============================================================================
+
+# Archives
+*.zip
+*.tar.gz
+*.tar.bz2
+*.7z
+*.rar
+
+# Large binary files
+*.bin
+*.dat
+*.npy
+*.npz
+
+# =============================================================================
+# DOCUMENTATION
+# =============================================================================
+
+# Auto-generated docs
+docs/build/
+docs/_build/
+
+# =============================================================================
+# CUSTOM IGNORES
+# =============================================================================
+
+# Add your custom ignores here
+# Example:
+# my_custom_dataset/
+# my_experiments/
