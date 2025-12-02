@@ -1,14 +1,22 @@
 # Interactive Robotics Simulation Environment
 
-🤖 **A comprehensive interactive robotics simulation setup using Habitat-Sim, Habitat-Lab, and Home-Robot for research and development.**
+🤖 **A complete interactive robotics simulation with VISIBLE ROBOT visualization using Habitat-Sim with Bullet Physics, featuring URDF-based robot loading and photorealistic environments.**
+
+## ✨ Key Features
+
+✅ **WORKING ROBOT VISUALIZATION**: Stretch robot successfully loads from URDF and is visible in 3D scenes!  
+✅ **Bullet Physics Integration**: Full physics simulation with articulated objects  
+✅ **Interactive Navigation**: WASD controls with real-time robot discovery  
+✅ **Photorealistic Environments**: HSSD dataset with 168 furnished house scenes  
+✅ **Complete Dataset**: 22GB of research-grade scenes, objects, and robot assets  
 
 ## 🎯 Overview
 
-This repository provides a complete interactive robotics simulation environment that combines:
-- **Habitat-Sim**: Photorealistic 3D simulation engine with GPU acceleration
-- **Habitat-Lab**: High-level framework for embodied AI tasks and benchmarks  
-- **Home-Robot**: Robotics abstractions and real-world integration
-- **PyBullet**: Physics-based interactive simulation (alternative/complementary)
+This repository provides a **working** interactive robotics simulation environment that combines:
+- **Habitat-Sim 0.3.3 + Bullet**: Photorealistic simulation with physics-based robot loading
+- **Habitat-Lab 0.2.5**: High-level framework for embodied AI research
+- **Home-Robot**: Complete robotics abstractions with Stretch robot URDF/meshes
+- **HSSD Dataset**: Human-authored furnished house scenes for realistic environments
 
 ## 🏗️ Architecture
 
@@ -86,13 +94,13 @@ git submodule update --init --recursive
    conda activate home-robot
    ```
 
-3. **Install Habitat-Sim** (headless for servers, with display for desktop):
+3. **Install Habitat-Sim WITH BULLET PHYSICS** (CRITICAL for robot visualization):
    ```bash
-   # For desktop with display:
-   mamba install habitat-sim -c conda-forge -c aihabitat -y
+   # IMPORTANT: Use 'withbullet' for robot URDF loading support
+   conda install habitat-sim withbullet -c aihabitat -c conda-forge -y
    
-   # For headless servers:
-   mamba install habitat-sim headless -c conda-forge -c aihabitat -y
+   # Verify Bullet Physics is enabled:
+   python -c "import habitat_sim; print(f'Bullet Physics: {habitat_sim.built_with_bullet}')"
    ```
 
 4. **Install Habitat-Lab and dependencies**:
@@ -140,29 +148,47 @@ git submodule update --init --recursive
 
 ## 🎮 Running the Demo
 
-**After installation (either Option A or B), run the interactive demo:**
-```bash
-# Navigate to your InteractiveRobotics directory
-cd InteractiveRobotics  # (if using Option A)
-# OR cd /path/to/your/setup  # (if using Option B)
+## 🎮 Running the Demo
 
-# Activate environment and run
+**1. Download the complete datasets (Required - 22GB)**:
+```bash
+cd InteractiveRobotics
+./download_data.sh  # Downloads HSSD scenes, objects, and robot assets
+```
+
+**2. Run the furnished house robot demo**:
+```bash
 conda activate home-robot
-python interactive_habitat_demo.py
+export HOME_ROBOT_ROOT=$(pwd)/home-robot
+python furnished_house_robot_demo.py
 ```
 
-**Verify your setup:**
+**3. Verify your complete setup**:
 ```bash
-# Run the installation checker to verify everything works
-python check_installation.py
+python check_installation.py  # Comprehensive system verification
 ```
 
-**Controls**:
-- `W/A/S/D`: Move forward/left/backward/right
-- `Q/E`: Turn left/right  
-- `R`: Move up
-- `F`: Move down
-- `ESC`: Exit
+## 🕹️ Demo Controls & Features
+
+### Navigation Controls
+- `W/A/S/D`: Move forward/left/backward/right  
+- `Q/E`: Strafe left/right
+- `Z/X`: Look up/down
+- `R`: Reset to starting position
+- `ESC`: Exit demo
+
+### UI Controls  
+- `T`: Toggle robot radar display
+- `I`: Toggle detailed robot information
+- `M`: Toggle minimap overlay
+- `C`: Toggle compass display
+
+### Demo Features
+- **🏠 Furnished House Exploration**: Navigate through realistic HSSD scenes
+- **🤖 Robot Discovery System**: Find and interact with the Stretch robot
+- **📊 Real-time Statistics**: Track movement, discoveries, and achievements
+- **🎯 Proximity Detection**: Get notified when approaching robots
+- **🏆 Achievement System**: Unlock exploration milestones
 
 ## 🔧 System Requirements
 
@@ -215,40 +241,87 @@ InteractiveRobotics/
             └── habitat-test-scenes/  # Apartment, castle, van-gogh
 ```
 
+## 🎯 Robot Visualization Breakthrough 
+
+**⚠️ CRITICAL SOLUTION**: Robot visibility requires **Bullet Physics** enabled in Habitat-Sim!
+
+### The Solution (Working Code)
+```python
+# 1. Enable Bullet Physics in simulator configuration
+sim_cfg.enable_physics = True  # MUST be True for URDF loading
+
+# 2. Use Articulated Object Manager for robot loading
+ao_mgr = self.sim.get_articulated_object_manager()
+robot_obj = ao_mgr.add_articulated_object_from_urdf(
+    filepath="home-robot/data/robots/hab_stretch/urdf/hab_stretch.urdf",
+    fixed_base=False,
+    maintain_link_order=False,
+    force_reload=True
+)
+
+# 3. Position and configure robot
+robot_obj.translation = mn.Vector3(2.0, 0.0, 1.5)
+robot_obj.motion_type = habitat_sim.physics.MotionType.KINEMATIC
+```
+
+### Key Requirements
+- ✅ **Habitat-Sim with Bullet Physics**: `conda install habitat-sim withbullet -c aihabitat`
+- ✅ **Physics Enabled**: `sim_cfg.enable_physics = True` in configuration
+- ✅ **URDF File Access**: Proper path to `hab_stretch.urdf` and mesh files
+- ✅ **Articulated Object Manager**: Use `add_articulated_object_from_urdf()` method
+
+### Success Indicators
+```
+✅ Robot loaded successfully!
+   Type: <class 'habitat_sim._ext.habitat_sim_bindings.ManagedBulletArticulatedObject'>
+   Position: [2.0, 0.0, 1.5]
+   🎯 Robot is now VISIBLE in the simulation!
+```
+
 ## 🛠️ Troubleshooting
+
+### Robot Visualization Issues
+
+**1. "Not implemented in base PhysicsManager" Error**
+```bash
+# Install Bullet Physics version:
+conda install habitat-sim withbullet -c aihabitat -c conda-forge
+# Verify: python -c "import habitat_sim; print(habitat_sim.built_with_bullet)"
+```
+
+**2. URDF Loading Fails**
+```bash
+# Check URDF file exists:
+ls home-robot/data/robots/hab_stretch/urdf/hab_stretch.urdf
+# Check mesh files:
+ls home-robot/data/robots/hab_stretch/meshes/
+```
 
 ### Common Issues
 
-**1. ImportError: sophuspy version mismatch**
+**3. ImportError: sophuspy version mismatch**
 ```bash
 pip install sophuspy==1.2.0 --force-reinstall
 ```
 
-**2. Habitat-Sim installation fails**
+**4. Habitat-Sim installation fails**
 ```bash
-# Try conda-forge channel:
-mamba install habitat-sim -c conda-forge -c aihabitat -y
-
-# Or build from source:
-git clone https://github.com/facebookresearch/habitat-sim.git
-cd habitat-sim
-pip install -r requirements.txt
-python setup.py install --headless
+# Install with Bullet Physics support:
+conda install habitat-sim withbullet -c aihabitat -c conda-forge -y
 ```
 
-**3. GPU not detected**
+**5. GPU not detected**
 ```bash
 # Check CUDA installation:
 nvidia-smi
-
 # Check PyTorch CUDA support:
 python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
 ```
 
-**4. Scene data not found**
+**6. Scene data not found**
 ```bash
 # Download required scenes:
-python -m habitat_sim.utils.datasets_download --uids habitat_test_scenes --data-path home-robot/data/
+./download_data.sh  # Or manual download
 ```
 
 ### Performance Optimization
