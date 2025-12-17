@@ -1,18 +1,18 @@
-# Interactive Robotics .gitignore (Updated for Flattened Repo)
-# Prevents accidental upload of large datasets but ALLOWS robot models
+# Interactive Robotics .gitignore
+# Prevents accidental upload of large datasets, models, and temporary files
 
 # =============================================================================
 # HABITAT & HOME-ROBOT DATA FILES
 # =============================================================================
 
-# Complete dataset directories (Keep these ignored to save space)
+# Complete dataset directories (downloaded by ./download_data.sh)
 home-robot/data/
 **/hssd-hab/
 **/objects/
 **/datasets/ovmm/
 **/robots/hab_stretch/
 
-# Scene datasets (Ignore large 3D scans of houses)
+# Scene datasets (large 3D assets)
 **/data/scene_datasets/
 **/scene_datasets/
 *.glb
@@ -20,11 +20,8 @@ home-robot/data/
 *.obj
 *.ply
 *.dae
-
-# !!! MODIFIED: ALLOW ROBOT MODELS !!!
-# We commented these out so your robot has a body!
-# *.STL
-# *.stl
+*.STL
+*.stl
 
 # Episode datasets and task definitions
 **/data/datasets/
@@ -33,7 +30,7 @@ home-robot/data/
 episodes/
 content/
 
-# Model checkpoints and weights (Keep these ignored, they are very large)
+# Model checkpoints and weights
 *.pth
 *.pt
 *.ckpt
@@ -56,12 +53,11 @@ scene_filter_files/
 *.tar.gz
 *.7z
 
-# !!! MODIFIED: ALLOW ROBOT STRUCTURES !!!
-# These must be pushed so the code can find the robot's joints
-# urdf/
-# meshes/
-# *.urdf
-# *.mtl
+# Robot model files
+urdf/
+meshes/
+*.urdf
+*.mtl
 
 # =============================================================================
 # PYTHON
