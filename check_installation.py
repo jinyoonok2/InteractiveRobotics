@@ -345,11 +345,11 @@ def check_scene_data():
         return False
 
 def check_demo_readiness():
-    """Check if the interactive demo can run"""
-    print_header("Interactive Demo Readiness")
+    """Check if the furnished house demo can run"""
+    print_header("Furnished House Demo Readiness")
     
     # Check if demo file exists
-    demo_file = Path("interactive_habitat_demo.py")
+    demo_file = Path("furnished_house_robot_demo.py")
     demo_exists = demo_file.exists()
     print_check(f"Demo file: {demo_file.name}", demo_exists, 
                "File not found" if not demo_exists else "Ready to run")
@@ -359,13 +359,13 @@ def check_demo_readiness():
     
     # Try to import the demo (syntax check)
     try:
-        import interactive_habitat_demo
+        import furnished_house_robot_demo
         print_check("Demo import: Successful", True, "No syntax errors")
         
         # Check if main function exists
-        has_main = hasattr(interactive_habitat_demo, 'interactive_habitat_demo')
+        has_main = hasattr(furnished_house_robot_demo, 'main')
         print_check("Demo function: Available", has_main, 
-                   "interactive_habitat_demo() function found" if has_main else "Function not found")
+                   "main() function found" if has_main else "Function not found")
         
         return has_main
         
@@ -382,7 +382,7 @@ def print_summary(checks_passed, total_checks):
     if success_rate == 100:
         status_color = Colors.GREEN
         status_msg = "🎉 Perfect! All systems ready"
-        advice = "You can run: python interactive_habitat_demo.py"
+        advice = "You can run: python furnished_house_robot_demo.py"
     elif success_rate >= 80:
         status_color = Colors.YELLOW
         status_msg = "⚠️  Almost ready (minor issues)"
