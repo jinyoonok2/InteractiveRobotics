@@ -54,8 +54,11 @@ class InteractiveRoboticsDemo:
         """Initialize Habitat-Sim with optimal settings"""
         print("🏠 Setting up fully furnished HSSD house with objects and furniture...")
         
+        import os
+        base_path = os.path.join(os.path.dirname(__file__), "home-robot")
+        
         sim_settings = {
-            "scene_dataset": "/home/jinyoonok/Projects/InteractiveRobotics/home-robot/data/hssd-hab/hssd-hab.scene_dataset_config.json",
+            "scene_dataset": os.path.join(base_path, "data/hssd-hab/hssd-hab.scene_dataset_config.json"),
             "scene": "102344280",  # Use scene ID instead of full path
             "default_agent": 0,
             "sensor_height": 1.5,
@@ -64,15 +67,21 @@ class InteractiveRoboticsDemo:
             "hfov": 90,
         }
         
-        # Create configuration (no physics to avoid compatibility issues)
+        # Create configuration with proper lighting for realistic rendering
         sim_cfg = habitat_sim.SimulatorConfiguration()
         sim_cfg.gpu_device_id = 0
         sim_cfg.scene_dataset_config_file = sim_settings["scene_dataset"]
         sim_cfg.scene_id = sim_settings["scene"]
         sim_cfg.enable_physics = True  # Must be True to use Articulated Object Manager/URDF
         
+        # Enable high-quality rendering with lighting
+        sim_cfg.requires_textures = True
+        sim_cfg.enable_gfx_replay_save = False
+        sim_cfg.create_renderer = True
+        sim_cfg.leave_context_with_background_renderer = False
+        
         # Add asset root path for URDF and mesh loading
-        STRETCH_ASSET_ROOT = "/home/jinyoonok/Projects/InteractiveRobotics/home-robot/data/robots"
+        STRETCH_ASSET_ROOT = os.path.join(base_path, "data/robots")
         # This allows Habitat-Sim to resolve package:// paths in the URDF
         
         # Set up sensors
@@ -96,6 +105,9 @@ class InteractiveRoboticsDemo:
         cfg = habitat_sim.Configuration(sim_cfg, [agent_cfg])
         self.sim = habitat_sim.Simulator(cfg)
         
+        # Setup realistic lighting for high-quality rendering
+        self.setup_lighting()
+        
         # Initialize agent
         self.agent = self.sim.initialize_agent(sim_settings["default_agent"])
         
@@ -112,12 +124,48 @@ class InteractiveRoboticsDemo:
         print("🏠 Exploring a complete furnished house - find the robot!")
         return sim_settings
     
+    def setup_lighting(self):
+        """Configure realistic lighting for high-quality rendering"""
+        # Create a new light setup with high-quality PBR lighting
+        light_setup = [
+            # Strong ambient light for base illumination (higher than before)
+            habitat_sim.gfx.LightInfo(
+                vector=mn.Vector4(0, 0, 0, 1),  # Position doesn't matter for global
+                color=mn.Vector3(0.6, 0.6, 0.6),  # Increased from 0.4 for better visibility
+                model=habitat_sim.gfx.LightPositionModel.Global
+            ),
+            # Main directional light (warm sunlight from top-left)
+            habitat_sim.gfx.LightInfo(
+                vector=mn.Vector4(-1.0, -1.5, -0.5, 0.0),  # w=0 for directional
+                color=mn.Vector3(2.0, 1.9, 1.7),  # Stronger warm sunlight
+                model=habitat_sim.gfx.LightPositionModel.Global
+            ),
+            # Fill light from opposite side (cool tone)
+            habitat_sim.gfx.LightInfo(
+                vector=mn.Vector4(1.0, -0.8, 0.8, 0.0),
+                color=mn.Vector3(0.8, 0.8, 1.0),  # Cooler fill light
+                model=habitat_sim.gfx.LightPositionModel.Global
+            ),
+            # Back light for depth
+            habitat_sim.gfx.LightInfo(
+                vector=mn.Vector4(0.0, -0.5, 1.0, 0.0),
+                color=mn.Vector3(0.5, 0.5, 0.6),  # Subtle back lighting
+                model=habitat_sim.gfx.LightPositionModel.Global
+            )
+        ]
+        
+        # Apply the lighting setup
+        self.sim.set_light_setup(light_setup)
+        print("💡 High-quality PBR lighting with 4-point setup enabled")
+    
     def spawn_robots(self):
         """Spawn Stretch robot using proper articulated object manager"""
         print("🤖 Loading Stretch robot using articulated object manager...")
         
+        import os
+        base_path = os.path.join(os.path.dirname(__file__), "home-robot")
         robot = self.robots[0]  # Our single Stretch robot
-        stretch_urdf_path = "/home/jinyoonok/Projects/InteractiveRobotics/home-robot/data/robots/hab_stretch/urdf/hab_stretch.urdf"
+        stretch_urdf_path = os.path.join(base_path, "data/robots/hab_stretch/urdf/hab_stretch.urdf")
         
         try:
             # Get articulated object manager
@@ -136,6 +184,16 @@ class InteractiveRoboticsDemo:
             )
             
             if stretch_robot:
+                # Enable lighting for the robot's render assets
+                # This fixes the "incompatible light setup" warnings
+                render_asset_mgr = self.sim.get_asset_template_manager()
+                for link_id in range(-1, stretch_robot.num_links):
+                    visual_nodes = stretch_robot.get_link_visual_nodes(link_id) if link_id >= 0 else stretch_robot.get_visual_scene_nodes()
+                    for node in visual_nodes:
+                        # Enable Phong shading for realistic lighting
+                        node.node_sensor_suite = None  # Clear any sensor suites
+                        if hasattr(node, 'shader_type'):
+                            node.shader_type = habitat_sim.gfx.LightSetup.Phong
                 # Set robot position
                 stretch_robot.translation = mn.Vector3(
                     robot["position"][0],

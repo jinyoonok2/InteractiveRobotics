@@ -1,22 +1,51 @@
 # Interactive Robotics Simulation Environment
 
-🤖 **A complete interactive robotics simulation with VISIBLE ROBOT visualization using Habitat-Sim with Bullet Physics, featuring URDF-based robot loading and photorealistic environments.**
+🤖 **An interactive robotics manipulation demo featuring a Stretch robot in photorealistic environments with snap-to-gripper object manipulation, third-person camera control, and multi-scene support.**
 
 ## ✨ Key Features
 
-✅ **WORKING ROBOT VISUALIZATION**: Stretch robot successfully loads from URDF and is visible in 3D scenes!  
-✅ **Bullet Physics Integration**: Full physics simulation with articulated objects  
-✅ **Interactive Navigation**: WASD controls with real-time robot discovery  
-✅ **Photorealistic Environments**: HSSD dataset with 168 furnished house scenes  
-✅ **Complete Dataset**: 22GB of research-grade scenes, objects, and robot assets  
+✅ **Interactive Robot Manipulation**: Pick and place objects with snap-to-gripper system (Habitat OVMM-style)  
+✅ **Third-Person Camera**: Smooth follow camera with adjustable pitch and positioning  
+✅ **Multi-Scene Support**: Choose from 8 curated environments or any of 168 HSSD scenes  
+✅ **Optimized Lighting**: 3-point balanced lighting system preserving material colors  
+✅ **Full Robot Control**: WASD movement, arm joints, gripper control, and object manipulation  
+✅ **Photorealistic Rendering**: GPU-accelerated rendering with professional lighting setup  
 
-## 🎯 Overview
+## 🎯 Project Overview
 
-This repository provides a **working** interactive robotics simulation environment that combines:
-- **Habitat-Sim 0.3.3 + Bullet**: Photorealistic simulation with physics-based robot loading
-- **Habitat-Lab 0.2.5**: High-level framework for embodied AI research
-- **Home-Robot**: Complete robotics abstractions with Stretch robot URDF/meshes
-- **HSSD Dataset**: Human-authored furnished house scenes for realistic environments
+This project demonstrates **mobile manipulation** in photorealistic simulation environments. It combines:
+
+- **Robot Platform**: Stretch Robot (Hello Robot) with 43 links and 14 controllable joints
+- **Simulation Engine**: Habitat-Sim 0.3.3 with Bullet Physics for realistic object dynamics
+- **Environments**: HSSD dataset providing 168 photorealistic 3D-scanned home environments
+- **Manipulation System**: Snap-to-gripper object picking inspired by Habitat OVMM research
+
+### What We've Built
+
+**1. Scene Realism & Lighting**
+- Implemented 3-point balanced lighting system (ambient + directional + fill lights)
+- Reduced lighting intensity from 200% to 120% to preserve robot's dark gray materials
+- Custom lighting configuration for HSSD scenes (which lack built-in lighting)
+- Identified optimal scenes for presentation quality
+
+**2. Multi-Scene Environment**
+- Scene selection menu with 8 pre-curated environments (apartments, houses, offices, villas)
+- Support for custom scene ID input (access all 168 HSSD scenes)
+- Automatic scene loading with proper robot spawning
+
+**3. Robot Integration & Control**
+- Stretch robot (hab_stretch v1.0) successfully integrated with all scenes
+- Third-person follow camera system (2.5m distance, 0.8m height, adjustable pitch)
+- Full 6-DOF movement controls (forward/back, strafe, turn, up/down)
+- Camera pitch control (Z/X keys) for better viewing angles
+
+**4. Object Manipulation System**
+- Object spawning in front of robot using Habitat-Sim primitives
+- Snap-to-gripper picking system (Habitat OVMM research standard)
+- Improved object tracking using actual gripper link position
+- Smart object dropping in front of robot (not fixed position)
+- Visual feedback: arm extension and gripper closing during manipulation
+- Detection range: 0.8m radius for object picking
 
 ## 🏗️ Architecture
 
@@ -146,49 +175,86 @@ git submodule update --init --recursive
    python -m habitat_sim.utils.datasets_download --uids habitat_test_scenes --data-path home-robot/data/
    ```
 
-## 🎮 Running the Demo
+## 🎮 Running the Demos
 
-## 🎮 Running the Demo
+### Main Manipulation Demo (robot_manipulation_demo.py)
 
-**1. Download the complete datasets (Required - 22GB)**:
-```bash
-cd InteractiveRobotics
-./download_data.sh  # Downloads HSSD scenes, objects, and robot assets
-```
+**The primary interactive demo featuring object manipulation and third-person camera control.**
 
-**2. Run the furnished house robot demo**:
 ```bash
 conda activate home-robot
 export HOME_ROBOT_ROOT=$(pwd)/home-robot
+python robot_manipulation_demo.py
+```
+
+**Features:**
+- Scene selection menu (8 curated environments + custom option)
+- Third-person follow camera
+- Object spawning and manipulation
+- Full robot control with visual feedback
+
+### Original Furnished House Demo (furnished_house_robot_demo.py)
+
+**The reference demo with exploration and passive observation.**
+
+```bash
+conda activate home-robot
 python furnished_house_robot_demo.py
 ```
 
-**3. Verify your complete setup**:
+**Features:**
+- High-quality 4-point PBR lighting
+- Robot radar and minimap
+- Exploration achievements
+- First-person perspective
+
+### Verify Installation
+
 ```bash
-python check_installation.py  # Comprehensive system verification
+python check_installation.py  # System verification
 ```
 
-## 🕹️ Demo Controls & Features
+## 🕹️ Controls
 
-### Navigation Controls
-- `W/A/S/D`: Move forward/left/backward/right  
-- `Q/E`: Strafe left/right
-- `Z/X`: Look up/down
-- `R`: Reset to starting position
-- `ESC`: Exit demo
+### Robot Manipulation Demo
 
-### UI Controls  
-- `T`: Toggle robot radar display
-- `I`: Toggle detailed robot information
-- `M`: Toggle minimap overlay
-- `C`: Toggle compass display
+**Movement:**
+- `W` - Move forward
+- `S` - Move backward
+- `A` - Turn left
+- `D` - Turn right
+- `Q` - Strafe left
+- `E` - Strafe right
 
-### Demo Features
-- **🏠 Furnished House Exploration**: Navigate through realistic HSSD scenes
-- **🤖 Robot Discovery System**: Find and interact with the Stretch robot
-- **📊 Real-time Statistics**: Track movement, discoveries, and achievements
-- **🎯 Proximity Detection**: Get notified when approaching robots
-- **🏆 Achievement System**: Unlock exploration milestones
+**Camera:**
+- `Z` - Pitch camera up
+- `X` - Pitch camera down
+
+**Manipulation:**
+- `O` - Spawn new object (in front of robot)
+- `P` - Pick nearest object (0.8m range) / Drop held object
+- `G` - Toggle gripper (open/close)
+
+**Arm Control:**
+- `1-5` - Move individual arm joints
+
+**System:**
+- `ESC` - Exit demo
+
+### Furnished House Demo
+
+**Navigation:**
+- `W/A/S/D` - Move forward/left/backward/right  
+- `Q/E` - Strafe left/right
+- `Z/X` - Look up/down
+- `R` - Reset to starting position
+
+**UI Toggles:**  
+- `T` - Robot radar display
+- `I` - Robot information
+- `M` - Minimap overlay
+- `C` - Compass display
+- `ESC` - Exit demo
 
 ## 🔧 System Requirements
 
@@ -215,31 +281,171 @@ python check_installation.py  # Comprehensive system verification
 
 ```
 InteractiveRobotics/
-├── README.md                      # This file
-├── .gitignore                     # Prevents uploading large datasets
-├── check_installation.py          # Installation verification script
-├── interactive_habitat_demo.py    # Main interactive demo
-└── home-robot/                    # Home-Robot repository
-    ├── src/home_robot/           # Core robotics package
-    ├── src/home_robot_sim/       # Simulation interfaces
-    ├── src/home_robot_hw/        # Hardware interfaces
-    ├── src/third_party/          # Third-party dependencies
-    │   └── habitat-lab/          # Habitat-Lab framework
-    └── data/                     # Datasets (22GB+, git-ignored)
-        ├── hssd-hab/             # Photorealistic home scenes (20GB)
-        │   ├── scenes/           # 168 house scene files
-        │   └── stages/           # Scene geometry files
-        ├── objects/              # Interactive objects (1.8GB)
-        │   └── train_val/        # 3K+ household objects
-        ├── datasets/ovmm/        # Task episodes (746MB)
-        │   ├── train/            # Training episodes
-        │   └── val/              # Validation episodes
-        ├── robots/hab_stretch/   # Robot model (47MB)
-        │   ├── urdf/             # Robot description files
-        │   └── meshes/           # 3D robot meshes
-        └── data/scene_datasets/  # Basic test scenes
-            └── habitat-test-scenes/  # Apartment, castle, van-gogh
+├── README.md                           # This file
+├── .gitignore                          # Prevents uploading large datasets
+├── check_installation.py               # Installation verification script
+├── robot_manipulation_demo.py          # Main manipulation demo (PRIMARY)
+├── furnished_house_robot_demo.py       # Original exploration demo (REFERENCE)
+└── home-robot/                         # Home-Robot repository (submodule)
+    ├── src/home_robot/                 # Core robotics package
+    ├── src/home_robot_sim/             # Simulation interfaces
+    ├── src/home_robot_hw/              # Hardware interfaces
+    ├── src/third_party/                # Third-party dependencies
+    │   └── habitat-lab/                # Habitat-Lab framework
+    ├── assets/                         # Robot and object assets
+    │   ├── *_block.urdf                # Colored block objects
+    │   └── hab_stretch/                # Stretch robot assets
+    └── data/                           # Datasets (22GB+, git-ignored)
+        ├── hssd-hab/                   # Photorealistic home scenes (20GB)
+        │   ├── scenes/                 # 168 house scene files (.scene_instance.json)
+        │   └── stages/                 # Scene geometry files (.glb)
+        ├── objects/                    # Interactive objects (1.8GB)
+        │   └── train_val/              # 3K+ household objects
+        ├── datasets/ovmm/              # Task episodes (746MB)
+        │   ├── train/                  # Training episodes
+        │   └── val/                    # Validation episodes
+        ├── robots/hab_stretch/         # Robot model (47MB)
+        │   ├── urdf/                   # Robot description files
+        │   └── meshes/                 # 3D robot meshes
+        └── scene_datasets/             # Basic test scenes
+            └── habitat-test-scenes/    # Apartment, castle, van-gogh
 ```
+
+## 🛠️ Technical Implementation
+
+### Architecture
+```
+Robot Manipulation Demo
+        ↓
+┌─────────────────────┐
+│   Home-Robot        │ ← Robot abstractions & URDF assets
+│   (Submodule)       │
+└─────────────────────┘
+        ↓
+┌─────────────────────┐
+│   Habitat-Sim       │ ← 3D simulation engine + Bullet Physics
+│   (with Bullet)     │
+└─────────────────────┘
+        ↓
+┌─────────────────────┐
+│   HSSD Dataset      │ ← 168 photorealistic scenes
+│   (22GB data)       │
+└─────────────────────┘
+        ↓
+┌─────────────────────┐
+│   GPU Rendering     │ ← CUDA/ROCm acceleration
+│   (Hardware)        │
+└─────────────────────┘
+```
+
+### Key Components
+
+**Lighting System:**
+- 3-point balanced lighting (ambient 50%, sun 120%, fill 60%)
+- Optimized to preserve robot's dark gray materials (Kd 0.326)
+- Custom setup for HSSD scenes (which lack built-in lighting)
+
+**Robot Control:**
+- Stretch robot: 43 links, 14 controllable joints
+- KINEMATIC motion type for predictable movement
+- Gripper link ID: 36, Head link ID: 8
+
+**Camera System:**
+- Third-person follow camera
+- 2.5m distance behind robot, 0.8m height
+- Adjustable pitch range: -1.0 to 1.5 radians
+- Uses Magnum quaternion math for smooth rotation
+
+**Manipulation System:**
+- Snap-to-gripper picking (Habitat OVMM research standard)
+- Object tracking via gripper link absolute_translation
+- KINEMATIC motion while held, DYNAMIC when dropped
+- 0.8m detection radius for object picking
+
+**Object Spawning:**
+- Uses Habitat-Sim primitive shapes (spheres, cubes)
+- Fallback to URDF block assets if primitives fail
+- DYNAMIC motion type with mass=0.5kg
+
+## 🚀 Current Progress
+
+### ✅ Completed Features
+
+**Scene Realism & Lighting:**
+- [x] 3-point balanced lighting system implementation
+- [x] Lighting intensity optimization (200% → 120%)
+- [x] Robot material color preservation (dark gray instead of white)
+- [x] Scene-specific lighting tuning
+
+**Multi-Scene Support:**
+- [x] Scene selection menu with 8 curated environments
+- [x] Custom scene ID input (168 total scenes available)
+- [x] Modern Apartment (best lighting quality)
+- [x] Luxury House, Office Space, Contemporary Villa, etc.
+
+**Robot Integration:**
+- [x] Stretch robot successfully loaded in all scenes
+- [x] 43 links, 14 controllable joints
+- [x] Third-person follow camera system
+- [x] Camera pitch control (Z/X keys)
+- [x] Smooth camera positioning (2.5m back, 0.8m up)
+
+**Object Manipulation:**
+- [x] Object spawning system (Habitat primitives + URDF fallback)
+- [x] Snap-to-gripper picking (OVMM-style)
+- [x] Improved object tracking (gripper link absolute_translation)
+- [x] Smart object dropping (in front of robot, not fixed position)
+- [x] Visual feedback (arm extension, gripper closing)
+- [x] 0.8m detection radius
+
+### 🔄 In Progress
+
+**Lighting Improvements:**
+- [ ] Dynamic lighting adjustments based on scene size
+- [ ] Area-specific illumination for large scenes
+- [ ] Lighting presets (dark/normal/bright modes)
+- [ ] Better coverage for offices and villas
+
+**Manipulation Enhancements:**
+- [ ] More realistic physics-based grasping
+- [ ] Collision-based manipulation
+- [ ] Multiple object types (not just primitives)
+- [ ] Object placement validation
+
+### 📋 Future Work
+
+**Advanced Features:**
+- [ ] Integration with Habitat OVMM tasks
+- [ ] Navigation planning (A* or similar)
+- [ ] Semantic scene understanding
+- [ ] Multi-robot scenarios
+- [ ] Real-world robot deployment bridge
+
+**Visual Improvements:**
+- [ ] Higher quality rendering settings
+- [ ] Shadow improvements
+- [ ] Post-processing effects
+- [ ] Better material rendering
+
+**User Experience:**
+- [ ] GUI-based scene selection
+- [ ] In-scene object browser
+- [ ] Save/load robot states
+- [ ] Replay/recording system
+
+## 📊 Scene Recommendations
+
+**Best for Presentations:**
+- **Modern Apartment (102344280)**: Optimal lighting, compact layout, best robot visibility
+- **Luxury House (103997792)**: Well-lit, spacious, good for navigation demos
+
+**Good for Testing:**
+- **Office Space (102344049)**: Larger area, tests lighting coverage
+- **Contemporary Villa (102816036)**: Complex layout, multi-room navigation
+
+**Challenging Environments:**
+- **Modern Studio (102816318)**: Open space, minimal furniture
+- **Coastal Home (104348276)**: Large windows, natural lighting challenges
 
 ## 🎯 Robot Visualization Breakthrough 
 
@@ -379,41 +585,111 @@ After running `./download_data.sh`, you'll have:
 | numpy | Latest | Numerical computing |
 | torch | Latest | ML framework (with CUDA) |
 
-## 🔬 Research Applications
+## 🔬 Research Context
+
+### Habitat OVMM (Open Vocabulary Mobile Manipulation)
+
+This project's manipulation system is inspired by the **Habitat OVMM** benchmark, which uses:
+- **Snap-to-gripper**: "Magic" grasping where objects teleport to gripper (research standard)
+- **KINEMATIC attachment**: Object motion type changes while held
+- **Action space**: SNAP_OBJECT and DESNAP_OBJECT discrete actions
+
+**Why "magic" grasping?**
+- Focuses on high-level planning and navigation (not low-level motor control)
+- Eliminates physics-based grasping failures
+- Standard in embodied AI research for reproducibility
+- Sim-to-real transfer handled separately in real robot deployment
+
+### Research Applications
 
 This environment supports:
-- **Navigation Research**: PointNav, ObjectNav, ImageNav
-- **Manipulation Tasks**: Pick & Place, Object Interaction
+- **Navigation Research**: PointNav, ObjectNav, ImageNav tasks
+- **Manipulation Tasks**: Pick & Place, Object Rearrangement
 - **Embodied AI**: Vision-Language Navigation, Instruction Following
-- **Multi-Agent Systems**: Collaborative robotics
-- **Sim-to-Real Transfer**: Real robot deployment
+- **Multi-Agent Systems**: Collaborative robotics scenarios
+- **Sim-to-Real Transfer**: Bridge to real Stretch robots
+
+## 📈 Performance Metrics
+
+**Tested Configuration:**
+- **GPU**: NVIDIA RTX 4060 Laptop (8GB VRAM)
+- **Driver**: 580.95.05
+- **FPS**: 60+ with Modern Apartment scene
+- **RAM Usage**: ~4-6GB
+- **VRAM Usage**: ~2-3GB
+
+**Scene Complexity Impact:**
+- Small scenes (apartments): 60+ FPS
+- Large scenes (offices, villas): 45-60 FPS
+- With multiple objects: Minimal FPS impact
+
+## 📚 Key Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|--------|
+| habitat-sim | 0.3.3 | 3D simulation engine with Bullet Physics |
+| habitat-lab | 0.2.5+ | AI task framework |
+| home-robot | 0.1.0+ | Robotics abstractions and Stretch URDF |
+| magnum | Latest | 3D graphics and math library |
+| sophuspy | 1.2.0 | Lie group transformations |
+| opencv-python | Latest | Computer vision and display |
+| numpy | Latest | Numerical computing |
+| torch | 2.8.0+ | ML framework with CUDA support |
+
+## 🎓 Learning Resources
+
+**Habitat Documentation:**
+- [Habitat-Sim Docs](https://aihabitat.org/docs/habitat-sim/)
+- [Habitat-Lab Docs](https://aihabitat.org/docs/habitat-lab/)
+
+**Home-Robot:**
+- [GitHub Repository](https://github.com/facebookresearch/home-robot)
+- [Documentation](https://facebookresearch.github.io/home-robot/)
+
+**Research Papers:**
+- Habitat 2.0: Training Home Assistants to Rearrange Objects
+- OVMM: Open Vocabulary Mobile Manipulation
 
 ## 📈 Next Steps
 
-1. **Explore Embodiments**: Try different robot types (humanoid, quadruped, mobile manipulator)
-2. **Add Tasks**: Implement custom navigation or manipulation tasks
-3. **Integrate RL**: Add reinforcement learning training loops
-4. **Real Robot**: Connect to actual hardware (Stretch, Spot, etc.)
-5. **Custom Scenes**: Import your own 3D environments
+**Immediate Improvements:**
+1. **Enhanced Lighting**: Dynamic adjustment for large scenes
+2. **More Objects**: Custom URDF models and realistic household items
+3. **Better Physics**: Collision-based grasping option
+4. **GUI Controls**: Scene selection and object browser in-simulation
+
+**Advanced Features:**
+1. **Task Integration**: Implement Habitat OVMM tasks
+2. **Navigation Planning**: A* pathfinding integration
+3. **Semantic Mapping**: 3D semantic scene understanding
+4. **Multi-Robot**: Collaborative manipulation scenarios
+5. **Real Robot Bridge**: Deploy to actual Stretch robot
 
 ## 🤝 Contributing
 
-This is a research environment. Feel free to:
-- Add new simulation scenarios
-- Implement additional robot embodiments  
-- Create custom tasks and benchmarks
-- Optimize performance and add features
+Contributions welcome! Areas of interest:
+- Additional robot models (UR5, Fetch, etc.)
+- Custom manipulation tasks
+- Lighting improvements for large scenes
+- Performance optimizations
+- Real robot deployment examples
 
 ## 📄 License
 
-Based on Home-Robot (MIT License) and Habitat (MIT License).
+Based on:
+- **Home-Robot**: MIT License (Facebook Research)
+- **Habitat**: MIT License (Meta AI Research)
+- **HSSD Dataset**: CC BY 4.0
 
 ## 🙏 Acknowledgments
 
-- **Meta AI Research** for Habitat-Sim and Habitat-Lab
-- **Facebook Research** for Home-Robot
-- **AI Habitat Community** for datasets and tools
+- **Meta AI Research** - Habitat-Sim and Habitat-Lab frameworks
+- **Facebook Research** - Home-Robot robotics platform
+- **Hello Robot Inc.** - Stretch robot design and URDF
+- **AI Habitat Community** - HSSD datasets and research tools
 
 ---
+
+**For questions or issues**, please open an issue on GitHub.
 
 🚀 **Happy Robot Simulation!** 🤖
