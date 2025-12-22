@@ -1,51 +1,54 @@
 # Interactive Robotics Simulation Environment
 
-🤖 **An interactive robotics manipulation demo featuring a Stretch robot in photorealistic environments with snap-to-gripper object manipulation, third-person camera control, and multi-scene support.**
+🤖 **An interactive robotics simulation environment featuring humanoid avatars and robots in photorealistic environments with physics-based animation, intelligent collision detection, and full manipulation capabilities.**
 
 ## ✨ Key Features
 
-✅ **Interactive Robot Manipulation**: Pick and place objects with snap-to-gripper system (Habitat OVMM-style)  
-✅ **Third-Person Camera**: Smooth follow camera with adjustable pitch and positioning  
+✅ **Humanoid Avatar Control**: SMPL-X humanoid models with walking animation and LERP interpolation  
+✅ **Smart Wall Collision**: NavMesh-based collision with sliding along walls for smooth navigation  
+✅ **HSSD High-Fidelity Rendering**: PBR materials + HBAO ambient occlusion for photorealistic visuals  
+✅ **Robot Manipulation**: Stretch & Spot robots with fine joint control (keys 1-5) and snap-to-gripper  
 ✅ **Multi-Scene Support**: Choose from 8 curated environments or any of 168 HSSD scenes  
-✅ **Optimized Lighting**: 3-point balanced lighting system preserving material colors  
-✅ **Full Robot Control**: WASD movement, arm joints, gripper control, and object manipulation  
-✅ **Photorealistic Rendering**: GPU-accelerated rendering with professional lighting setup  
+✅ **Dual Camera Modes**: First-person and third-person views with independent camera rotation  
 
 ## 🎯 Project Overview
 
-This project demonstrates **mobile manipulation** in photorealistic simulation environments. It combines:
+This project demonstrates **humanoid avatar control and mobile manipulation** in photorealistic simulation environments. It combines:
 
-- **Robot Platform**: Stretch Robot (Hello Robot) with 43 links and 14 controllable joints
+- **Characters**: SMPL-X humanoid avatars with motion capture walking animations
+- **Robots**: Stretch Robot (Hello Robot) and Spot Robot (Boston Dynamics) with full articulation
 - **Simulation Engine**: Habitat-Sim 0.3.3 with Bullet Physics for realistic object dynamics
 - **Environments**: HSSD dataset providing 168 photorealistic 3D-scanned home environments
-- **Manipulation System**: Snap-to-gripper object picking inspired by Habitat OVMM research
+- **Physics**: NavMesh collision detection with wall sliding and distance-based animation
 
 ### What We've Built
 
-**1. Scene Realism & Lighting**
-- Implemented 3-point balanced lighting system (ambient + directional + fill lights)
-- Reduced lighting intensity from 200% to 120% to preserve robot's dark gray materials
-- Custom lighting configuration for HSSD scenes (which lack built-in lighting)
-- Identified optimal scenes for presentation quality
+**1. Humanoid Avatar System**
+- SMPL-X humanoid models (male_1, female_0, neutral_0) with 216 DOF (54 joints × 4 quaternions)
+- Walking motion capture data (130 frames @ 30 FPS) with smooth LERP interpolation
+- Distance-based animation speed matching: `frames += distance_moved × 30.0`
+- Freeze-on-idle behavior (animation pauses when stationary)
+- Procedural left arm swing workaround (motion capture issue)
+- Proper height adjustment: NavMesh + 0.9m body center offset
 
-**2. Multi-Scene Environment**
-- Scene selection menu with 8 pre-curated environments (apartments, houses, offices, villas)
-- Support for custom scene ID input (access all 168 HSSD scenes)
-- Automatic scene loading with proper robot spawning
+**2. Advanced Physics & Collision**
+- NavMesh-based collision detection with `try_step()` for wall sliding
+- Characters slide along walls instead of stopping abruptly
+- Proper height maintenance on uneven terrain
+- Smart object and robot positioning at navigable points
 
-**3. Robot Integration & Control**
-- Stretch robot (hab_stretch v1.0) successfully integrated with all scenes
-- Third-person follow camera system (2.5m distance, 0.8m height, adjustable pitch)
-- Full 6-DOF movement controls (forward/back, strafe, turn, up/down)
-- Camera pitch control (Z/X keys) for better viewing angles
+**3. HSSD High-Fidelity Rendering**
+- PBR (Physically-Based Rendering) material support
+- HBAO (Horizon-Based Ambient Occlusion) for realistic shadows
+- `override_scene_light_defaults=True` for improved lighting quality
+- Optimized rendering for dark materials (robot visibility)
 
-**4. Object Manipulation System**
-- Object spawning in front of robot using Habitat-Sim primitives
-- Snap-to-gripper picking system (Habitat OVMM research standard)
-- Improved object tracking using actual gripper link position
-- Smart object dropping in front of robot (not fixed position)
-- Visual feedback: arm extension and gripper closing during manipulation
-- Detection range: 0.8m radius for object picking
+**4. Robot Control & Manipulation**
+- Fine-grained joint control: Keys 1-5 for joints 0-4 (Shift+1-5 reverse)
+- Alternative controls: J/K (lift), U/I (arm extension)
+- Snap-to-gripper object manipulation (Habitat OVMM standard)
+- Stretch and Spot robots placed as static scene objects
+- Full 6-DOF movement with corrected coordinate system (W=forward +Z)
 
 ## 🏗️ Architecture
 
@@ -177,36 +180,38 @@ git submodule update --init --recursive
 
 ## 🎮 Running the Demos
 
-### Main Manipulation Demo (robot_manipulation_demo.py)
+### Humanoid Exploration Demo (humanoid_exploration_demo.py) - **PRIMARY**
 
-**The primary interactive demo featuring object manipulation and third-person camera control.**
+**The main demo featuring humanoid avatar control with walking animation and scene exploration.**
 
 ```bash
-conda activate home-robot
-export HOME_ROBOT_ROOT=$(pwd)/home-robot
-python robot_manipulation_demo.py
+conda activate interactive-robotics  # or home-robot if you used the old install
+python humanoid_exploration_demo.py
 ```
 
 **Features:**
+- SMPL-X humanoid avatar control with realistic walking animation
+- NavMesh collision detection with wall sliding
+- Distance-based animation speed matching
+- First-person and third-person camera modes (toggle with C)
+- Stretch & Spot robots placed in the scene as static objects
 - Scene selection menu (8 curated environments + custom option)
-- Third-person follow camera
-- Object spawning and manipulation
-- Full robot control with visual feedback
 
-### Original Furnished House Demo (furnished_house_robot_demo.py)
+### Robot Interaction Demo (robot_interaction_demo.py)
 
-**The reference demo with exploration and passive observation.**
+**Dedicated robot manipulation demo with fine joint control.**
 
 ```bash
-conda activate home-robot
-python furnished_house_robot_demo.py
+conda activate interactive-robotics
+python robot_interaction_demo.py
 ```
 
 **Features:**
-- High-quality 4-point PBR lighting
-- Robot radar and minimap
-- Exploration achievements
-- First-person perspective
+- Controllable Stretch robot with full articulation
+- Fine joint control (keys 1-5, Shift+1-5 reverse)
+- Object spawning and snap-to-gripper manipulation
+- Third-person follow camera with independent rotation
+- Movement direction fixes (W=forward, S=backward)
 
 ### Verify Installation
 
@@ -216,9 +221,32 @@ python check_installation.py  # System verification
 
 ## 🕹️ Controls
 
-### Robot Manipulation Demo
+### Humanoid Exploration Demo
 
-**Movement:**
+**Movement (Humanoid Avatar):**
+- `W` - Move forward (with wall sliding)
+- `S` - Move backward
+- `A` - Turn left
+- `D` - Turn right
+- `Q` - Strafe left
+- `E` - Strafe right
+
+**Camera:**
+- `C` - Toggle camera mode (1st person / 3rd person)
+- `Z` - Rotate camera left (3rd person only)
+- `X` - Rotate camera right (3rd person only)
+
+**Objects & Spawning:**
+- `O` - Spawn object near player
+- `H` - Spawn additional humanoid avatar
+- `P` - Pick/drop object (when near static robots)
+
+**System:**
+- `ESC` - Exit demo
+
+### Robot Interaction Demo
+
+**Movement (Robot):**
 - `W` - Move forward
 - `S` - Move backward
 - `A` - Turn left
@@ -227,33 +255,25 @@ python check_installation.py  # System verification
 - `E` - Strafe right
 
 **Camera:**
-- `Z` - Pitch camera up
-- `X` - Pitch camera down
+- `C` - Toggle camera mode
+- `Z` - Rotate camera left (3rd person)
+- `X` - Rotate camera right (3rd person)
+
+**Fine Joint Control:**
+- `1-5` - Move joints 0-4 forward
+- `Shift+1-5` - Move joints 0-4 reverse
+- `J` - Lift arm down
+- `K` - Lift arm up
+- `U` - Retract arm
+- `I` - Extend arm
 
 **Manipulation:**
-- `O` - Spawn new object (in front of robot)
-- `P` - Pick nearest object (0.8m range) / Drop held object
+- `O` - Spawn new object
+- `P` - Pick nearest object (<0.8m) / Drop held object
 - `G` - Toggle gripper (open/close)
-
-**Arm Control:**
-- `1-5` - Move individual arm joints
+- `R` - Reset robot joints
 
 **System:**
-- `ESC` - Exit demo
-
-### Furnished House Demo
-
-**Navigation:**
-- `W/A/S/D` - Move forward/left/backward/right  
-- `Q/E` - Strafe left/right
-- `Z/X` - Look up/down
-- `R` - Reset to starting position
-
-**UI Toggles:**  
-- `T` - Robot radar display
-- `I` - Robot information
-- `M` - Minimap overlay
-- `C` - Compass display
 - `ESC` - Exit demo
 
 ## 🔧 System Requirements
@@ -282,21 +302,29 @@ python check_installation.py  # System verification
 ```
 InteractiveRobotics/
 ├── README.md                           # This file
+├── install.sh                          # Automated installation script
 ├── .gitignore                          # Prevents uploading large datasets
 ├── check_installation.py               # Installation verification script
-├── robot_manipulation_demo.py          # Main manipulation demo (PRIMARY)
-├── furnished_house_robot_demo.py       # Original exploration demo (REFERENCE)
+├── humanoid_exploration_demo.py        # Main humanoid demo (PRIMARY)
+├── robot_interaction_demo.py           # Robot manipulation demo
+├── furnished_house_robot_demo.py       # Original reference demo
+├── data/                               # Project data folder (git-ignored)
+│   ├── scenes/                         # HSSD scenes
+│   │   └── hssd-hab/                   # 168 photorealistic homes
+│   ├── humanoids/                      # SMPL-X humanoid models
+│   │   ├── male_1/                     # Male humanoid (URDF + meshes)
+│   │   ├── female_0/                   # Female humanoid
+│   │   └── walking_motion_processed_smplx.pkl  # Motion capture data
+│   ├── robots/                         # Robot models
+│   │   ├── hab_stretch/                # Stretch robot (URDF + meshes)
+│   │   └── hab_spot_arm/               # Spot robot (URDF + meshes)
+│   └── objects/                        # Interactive objects
 └── home-robot/                         # Home-Robot repository (submodule)
-    ├── src/home_robot/                 # Core robotics package
-    ├── src/home_robot_sim/             # Simulation interfaces
-    ├── src/home_robot_hw/              # Hardware interfaces
-    ├── src/third_party/                # Third-party dependencies
-    │   └── habitat-lab/                # Habitat-Lab framework
-    ├── assets/                         # Robot and object assets
-    │   ├── *_block.urdf                # Colored block objects
-    │   └── hab_stretch/                # Stretch robot assets
-    └── data/                           # Datasets (22GB+, git-ignored)
-        ├── hssd-hab/                   # Photorealistic home scenes (20GB)
+    ├── src/home_robot/                 # Core robotics package (NOT USED)
+    ├── src/home_robot_sim/             # Simulation interfaces (NOT USED)
+    ├── assets/                         # Robot and object assets (REFERENCE)
+    └── data/                           # Original data location (MOVED to ../data/)
+```
         │   ├── scenes/                 # 168 house scene files (.scene_instance.json)
         │   └── stages/                 # Scene geometry files (.glb)
         ├── objects/                    # Interactive objects (1.8GB)
@@ -371,46 +399,42 @@ Robot Manipulation Demo
 
 ### ✅ Completed Features
 
-**Scene Realism & Lighting:**
-- [x] 3-point balanced lighting system implementation
-- [x] Lighting intensity optimization (200% → 120%)
-- [x] Robot material color preservation (dark gray instead of white)
-- [x] Scene-specific lighting tuning
+**Humanoid Animation System:**
+- [x] SMPL-X humanoid models (male_1, female_0, neutral_0) loaded
+- [x] Walking motion capture data (130 frames @ 30 FPS)
+- [x] LERP interpolation for smooth 60Hz→30Hz animation sync
+- [x] Distance-based animation speed: `frames += distance × 30.0`
+- [x] Freeze-on-idle behavior (animation pauses when stationary)
+- [x] Proper height offset (NavMesh + 0.9m body center)
+- [x] Procedural left arm swing (workaround for frozen mocap data)
 
-**Multi-Scene Support:**
-- [x] Scene selection menu with 8 curated environments
-- [x] Custom scene ID input (168 total scenes available)
-- [x] Modern Apartment (best lighting quality)
-- [x] Luxury House, Office Space, Contemporary Villa, etc.
+**Environment & Physics:**
+- [x] NavMesh-based collision detection with `try_step()`
+- [x] Wall sliding (characters slide along walls, not stop)
+- [x] HSSD high-fidelity rendering (PBR + HBAO)
+- [x] Smart object/robot positioning at navigable points
+- [x] 8 curated scenes + custom scene ID support
 
-**Robot Integration:**
-- [x] Stretch robot successfully loaded in all scenes
-- [x] 43 links, 14 controllable joints
-- [x] Third-person follow camera system
-- [x] Camera pitch control (Z/X keys)
-- [x] Smooth camera positioning (2.5m back, 0.8m up)
+**Robot Control:**
+- [x] Fine joint control (keys 1-5, Shift+1-5 reverse)
+- [x] Alternative controls (J/K for lift, U/I for arm)
+- [x] Movement direction fixes (W=forward +Z, S=backward -Z)
+- [x] Snap-to-gripper object manipulation
+- [x] Stretch & Spot robots as static scene objects
 
-**Object Manipulation:**
-- [x] Object spawning system (Habitat primitives + URDF fallback)
-- [x] Snap-to-gripper picking (OVMM-style)
-- [x] Improved object tracking (gripper link absolute_translation)
-- [x] Smart object dropping (in front of robot, not fixed position)
-- [x] Visual feedback (arm extension, gripper closing)
-- [x] 0.8m detection radius
+**Camera System:**
+- [x] First-person and third-person modes
+- [x] Independent camera rotation (Z/X keys)
+- [x] Smooth follow camera for humanoid/robot
+- [x] Toggle between modes (C key)
 
-### 🔄 In Progress
+### 🔄 Known Issues
 
-**Lighting Improvements:**
-- [ ] Dynamic lighting adjustments based on scene size
-- [ ] Area-specific illumination for large scenes
-- [ ] Lighting presets (dark/normal/bright modes)
-- [ ] Better coverage for offices and villas
-
-**Manipulation Enhancements:**
-- [ ] More realistic physics-based grasping
-- [ ] Collision-based manipulation
-- [ ] Multiple object types (not just primitives)
-- [ ] Object placement validation
+**Humanoid Animation:**
+- ⚠️ Left arm frozen in motion capture data
+- ✓ Workaround: Procedural quaternion-based arm swing (DOF 64-67)
+- ⚠️ KinematicHumanoid helper incompatible (version mismatch - abandoned)
+- ✓ Using manual LERP pose updates instead
 
 ### 📋 Future Work
 

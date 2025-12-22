@@ -1,7 +1,8 @@
 #!/bin/bash
 #
 # Interactive Robotics - Automated Installation Script
-# This script installs all required dependencies for the Interactive Robotics simulation environment
+# This script installs Habitat-Sim and Habitat-Lab for interactive robot simulation
+# Note: This project uses only data from home-robot, not the library itself
 #
 
 set -e  # Exit on error
@@ -53,46 +54,46 @@ if ! command -v conda &> /dev/null; then
 fi
 print_success "Conda found: $(conda --version)"
 
-# Set HOME_ROBOT_ROOT
-export HOME_ROBOT_ROOT="$SCRIPT_DIR/home-robot"
-echo -e "${YELLOW}HOME_ROBOT_ROOT set to: $HOME_ROBOT_ROOT${NC}"
+# Set DATA_PATH to project root data folder
+export DATA_PATH="$SCRIPT_DIR/data"
+echo -e "${YELLOW}DATA_PATH set to: $DATA_PATH${NC}"
 
-# Check if home-robot submodule exists and is populated
-print_step "Checking home-robot submodule..."
-if [ ! -d "$HOME_ROBOT_ROOT" ] || [ -z "$(ls -A $HOME_ROBOT_ROOT)" ]; then
-    print_warning "home-robot submodule not found or empty. Initializing..."
-    git submodule update --init --recursive
-    print_success "Submodules initialized"
+# Check if data folder exists
+print_step "Checking data folder..."
+if [ ! -d "$DATA_PATH" ]; then
+    print_warning "Data folder not found. Creating directory structure..."
+    mkdir -p "$DATA_PATH"/{scenes,objects,robots,humanoids}
+    print_success "Data directories created"
 else
-    print_success "home-robot submodule found"
+    print_success "Data folder found"
 fi
 
 # Initialize conda for bash
 eval "$(conda shell.bash hook)"
 
 # Check if environment exists
-print_step "Checking for home-robot conda environment..."
-if conda env list | grep -q "^home-robot "; then
-    read -p "Environment 'home-robot' already exists. Remove and recreate? (y/N): " -n 1 -r
+print_step "Checking for interactive-robotics conda environment..."
+if conda env list | grep -q "^interactive-robotics "; then
+    read -p "Environment 'interactive-robotics' already exists. Remove and recreate? (y/N): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         print_step "Removing existing environment..."
-        conda env remove -n home-robot -y
-        print_step "Creating fresh conda environment 'home-robot' with Python 3.9..."
-        conda create -n home-robot python=3.9 cmake -c conda-forge -y
+        conda env remove -n interactive-robotics -y
+        print_step "Creating fresh conda environment 'interactive-robotics' with Python 3.9..."
+        conda create -n interactive-robotics python=3.9 cmake -c conda-forge -y
         print_success "Conda environment created"
     else
         print_warning "Continuing with existing environment..."
     fi
 else
-    print_step "Creating conda environment 'home-robot' with Python 3.9..."
-    conda create -n home-robot python=3.9 cmake -c conda-forge -y
+    print_step "Creating conda environment 'interactive-robotics' with Python 3.9..."
+    conda create -n interactive-robotics python=3.9 cmake -c conda-forge -y
     print_success "Conda environment created"
 fi
 
 # Activate environment
-print_step "Activating home-robot environment..."
-conda activate home-robot
+print_step "Activating interactive-robotics environment..."
+conda activate interactive-robotics
 print_success "Environment activated"
 
 # Install system dependencies
@@ -130,110 +131,104 @@ fi
 
 # Install Habitat-Lab
 print_header "Installing Habitat-Lab"
-print_step "Installing Habitat-Lab framework..."
-if [ -d "$HOME_ROBOT_ROOT/src/third_party/habitat-lab/habitat-lab" ]; then
-    pip install -e "$HOME_ROBOT_ROOT/src/third_party/habitat-lab/habitat-lab"
-    print_success "Habitat-Lab installed"
-else
-    print_warning "Habitat-Lab submodule not found, attempting pip install..."
-    pip install habitat-lab==0.2.5
-fi
+print_step "Installing Habitat-Lab framework (latest version)..."
+pip install habitat-lab
+print_success "Habitat-Lab installed"
 
-# Install Habitat-Baselines (optional but recommended)
-if [ -d "$HOME_ROBOT_ROOT/src/third_party/habitat-lab/habitat-baselines" ]; then
-    print_step "Installing Habitat-Baselines..."
-    pip install -e "$HOME_ROBOT_ROOT/src/third_party/habitat-lab/habitat-baselines"
-    print_success "Habitat-Baselines installed"
-fi
-
-# Apply compatibility fixes to home-robot setup.py BEFORE installing
-print_header "Applying Compatibility Fixes to Home-Robot"
-print_step "Updating setup.py dependencies..."
-if [ -f "$HOME_ROBOT_ROOT/src/home_robot/setup.py" ]; then
-    # Fix sophuspy version
-    sed -i 's/"sophuspy==0\.0\.8"/"sophuspy==1.2.0"/g' "$HOME_ROBOT_ROOT/src/home_robot/setup.py"
-    # Fix numpy version constraint to allow 1.26.4
-    sed -i 's/"numpy<1\.24"/"numpy>=1.23,<2.0"/g' "$HOME_ROBOT_ROOT/src/home_robot/setup.py"
-    # Fix pillow version to match habitat-sim
-    sed -i 's/"pillow==10\.3\.0"/"pillow==10.4.0"/g' "$HOME_ROBOT_ROOT/src/home_robot/setup.py"
-    print_success "setup.py dependencies updated"
-fi
-
-print_step "Fixing import statements in home_robot code..."
-if [ -f "$HOME_ROBOT_ROOT/src/home_robot/home_robot/core/state.py" ]; then
-    sed -i 's/import sophus as sp/import sophuspy as sp/g' "$HOME_ROBOT_ROOT/src/home_robot/home_robot/core/state.py"
-    print_success "state.py import fixed"
-fi
-
-if [ -f "$HOME_ROBOT_ROOT/src/home_robot/home_robot/utils/geometry/_base.py" ]; then
-    # Replace the try-except import block with direct import
-    sed -i '/try:/,/import sophuspy as sp/c\import sophuspy as sp' "$HOME_ROBOT_ROOT/src/home_robot/home_robot/utils/geometry/_base.py"
-    print_success "_base.py import fixed"
-fi
-
-# Install Home-Robot packages
-print_header "Installing Home-Robot Packages"
-
-if [ -d "$HOME_ROBOT_ROOT/src/home_robot" ]; then
-    print_step "Installing home_robot core package..."
-    pip install -e "$HOME_ROBOT_ROOT/src/home_robot"
-    print_success "home_robot installed"
-else
-    print_warning "home_robot package not found at $HOME_ROBOT_ROOT/src/home_robot"
-fi
-
-if [ -d "$HOME_ROBOT_ROOT/src/home_robot_hw" ]; then
-    print_step "Installing home_robot_hw package..."
-    pip install -e "$HOME_ROBOT_ROOT/src/home_robot_hw"
-    print_success "home_robot_hw installed"
-fi
-
-if [ -d "$HOME_ROBOT_ROOT/src/home_robot_sim" ]; then
-    print_step "Installing home_robot_sim package..."
-    pip install -e "$HOME_ROBOT_ROOT/src/home_robot_sim"
-    print_success "home_robot_sim installed"
-fi
-
-# Install additional dependencies
+# Install additional required packages
 print_header "Installing Additional Dependencies"
 print_step "Installing opencv, numpy, matplotlib..."
 pip install opencv-python numpy matplotlib
 print_success "Core dependencies installed"
 
-# Fix sophuspy installation issue - needs newer cmake
-print_step "Upgrading cmake for sophuspy compilation..."
-conda install cmake -c conda-forge -y
-print_success "CMake upgraded"
-
-print_step "Installing sophuspy (this may take a minute to compile)..."
-pip install sophuspy==1.2.0
-print_success "sophuspy installed"
-
 # Ask about dataset download
-print_header "Dataset Download"
-echo -e "${YELLOW}${BOLD}Dataset Information:${NC}"
-echo "  • Complete dataset: ~22GB (HSSD scenes, objects, robot models)"
-echo "  • Minimal dataset: ~107MB (basic test scenes only)"
+print_header "Dataset Information"
+echo -e "${YELLOW}${BOLD}Project Data Structure:${NC}"
+echo "  • Data folder location: $DATA_PATH"
+echo "  • HSSD scenes: $DATA_PATH/scenes/hssd-hab/"
+echo "  • Robot models: $DATA_PATH/robots/"
+echo "  • Humanoid models: $DATA_PATH/humanoids/"
+echo "  • Objects: $DATA_PATH/objects/"
 echo ""
-read -p "Do you want to download the complete dataset now? (y/N): " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    print_step "Downloading complete datasets (this may take a while)..."
-    cd "$HOME_ROBOT_ROOT"
-    if [ -f "download_data.sh" ]; then
-        chmod +x download_data.sh
-        ./download_data.sh --yes
-        print_success "Datasets downloaded"
+echo -e "${CYAN}${BOLD}Note:${NC} Datasets will be downloaded directly to $DATA_PATH"
+echo ""
+
+# Check if home-robot submodule exists for downloading
+if [ -d "$SCRIPT_DIR/home-robot" ]; then
+    read -p "Do you want to download datasets now? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        print_step "Downloading datasets using home-robot download script..."
+        
+        # Temporarily change to home-robot directory
+        cd "$SCRIPT_DIR/home-robot"
+        
+        if [ -f "download_data.sh" ]; then
+            # Make script executable
+            chmod +x download_data.sh
+            
+            # Run download script - it will download to home-robot/data by default
+            print_warning "This will download ~22GB of data. This may take a while..."
+            ./download_data.sh --yes
+            
+            # Move downloaded data to project root data folder
+            print_step "Moving downloaded data to project data folder..."
+            
+            if [ -d "data/scenes" ] && [ ! -d "$DATA_PATH/scenes" ]; then
+                mv data/scenes "$DATA_PATH/"
+                print_success "Scenes moved to $DATA_PATH/scenes/"
+            fi
+            
+            if [ -d "data/robots" ] && [ ! -d "$DATA_PATH/robots" ]; then
+                mv data/robots "$DATA_PATH/"
+                print_success "Robot models moved to $DATA_PATH/robots/"
+            fi
+            
+            if [ -d "data/objects" ] && [ ! -d "$DATA_PATH/objects" ]; then
+                mv data/objects "$DATA_PATH/"
+                print_success "Objects moved to $DATA_PATH/objects/"
+            fi
+            
+            if [ -d "data/datasets" ] && [ ! -d "$DATA_PATH/datasets" ]; then
+                mv data/datasets "$DATA_PATH/"
+                print_success "Datasets moved to $DATA_PATH/datasets/"
+            fi
+            
+            # Clean up empty data folder in home-robot
+            if [ -d "data" ] && [ -z "$(ls -A data)" ]; then
+                rmdir data
+            fi
+            
+            print_success "All datasets moved to $DATA_PATH"
+        else
+            print_error "download_data.sh not found in home-robot directory"
+        fi
+        
+        cd "$SCRIPT_DIR"
     else
-        print_error "download_data.sh not found"
+        print_warning "Skipping dataset download."
     fi
-    cd "$SCRIPT_DIR"
 else
-    print_warning "Skipping dataset download. You can run it later:"
-    echo "  cd home-robot && ./download_data.sh --yes"
+    print_warning "home-robot submodule not found."
+    echo "To download datasets manually:"
+    echo "  1. git submodule update --init --recursive"
+    echo "  2. cd home-robot && ./download_data.sh --yes"
+    echo "  3. mv home-robot/data/* $DATA_PATH/"
+fi
+
+# Download humanoid models separately (if needed)
+print_header "Humanoid Models"
+if [ ! -d "$DATA_PATH/humanoids" ] || [ -z "$(ls -A $DATA_PATH/humanoids 2>/dev/null)" ]; then
+    echo -e "${YELLOW}Humanoid models not found in $DATA_PATH/humanoids/${NC}"
+    echo "You'll need to obtain SMPL-X humanoid models separately."
     echo ""
-    echo "Or download minimal test scenes:"
-    echo "  python -m habitat_sim.utils.datasets_download --uids habitat_test_scenes --data-path $HOME_ROBOT_ROOT/data/"
+    echo "If you have humanoid models in home-robot/data/humanoids:"
+    echo "  mv home-robot/data/humanoids $DATA_PATH/"
+    echo ""
+    echo "Or if they're elsewhere, copy them to:"
+    echo "  $DATA_PATH/humanoids/"
+else
+    print_success "Humanoid models found in $DATA_PATH/humanoids/"
 fi
 
 # Run installation check
@@ -248,9 +243,12 @@ fi
 print_header "Installation Complete!"
 echo -e "${GREEN}${BOLD}✨ Your Interactive Robotics environment is ready!${NC}\n"
 echo "To use the environment:"
-echo "  1. Activate: ${CYAN}conda activate home-robot${NC}"
-echo "  2. Set path: ${CYAN}export HOME_ROBOT_ROOT=$HOME_ROBOT_ROOT${NC}"
-echo "  3. Run demo: ${CYAN}python furnished_house_robot_demo.py${NC}"
+echo "  1. Activate: ${CYAN}conda activate interactive-robotics${NC}"
+echo "  2. Run demos:"
+echo "     ${CYAN}python humanoid_exploration_demo.py${NC}  - Humanoid avatar control"
+echo "     ${CYAN}python robot_interaction_demo.py${NC}     - Robot manipulation"
+echo ""
+echo "Data location: ${CYAN}$DATA_PATH${NC}"
 echo ""
 echo "For future sessions, add this to your ~/.bashrc:"
-echo "  ${CYAN}export HOME_ROBOT_ROOT=$HOME_ROBOT_ROOT${NC}"
+echo "  ${CYAN}alias activate-robots='conda activate interactive-robotics'${NC}"

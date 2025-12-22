@@ -6,6 +6,7 @@
 # =============================================================================
 
 # Complete dataset directories (downloaded by ./download_data.sh)
+data/
 home-robot/data/
 **/hssd-hab/
 **/objects/
