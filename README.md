@@ -189,6 +189,38 @@ conda activate interactive-robotics  # or home-robot if you used the old install
 python humanoid_exploration_demo.py
 ```
 
+## 🚀 Running the Demos
+
+### 🌟 Habitat-Lab Framework (Recommended for Policy Learning)
+
+**NEW! Full task-based architecture ready for RL training and complex interactions.**
+
+```bash
+conda activate home-robot
+python humanoid_habitat_lab.py
+```
+
+**Features:**
+- Proper habitat-lab task framework
+- Custom HumanoidMoveAction with walking animation
+- Action/observation interface for RL
+- Episode management and metrics
+- Extensible for multi-agent scenarios
+- Graceful fallback if datasets not available
+
+📖 **See [HABITAT_LAB_MIGRATION.md](HABITAT_LAB_MIGRATION.md) for full documentation**
+
+---
+
+### Humanoid Exploration Demo (humanoid_exploration_demo.py)
+
+**Standalone demo - simpler but good for prototyping and visualization.**
+
+```bash
+conda activate home-robot
+python humanoid_exploration_demo.py
+```
+
 **Features:**
 - SMPL-X humanoid avatar control with realistic walking animation
 - NavMesh collision detection with wall sliding
@@ -202,7 +234,7 @@ python humanoid_exploration_demo.py
 **Dedicated robot manipulation demo with fine joint control.**
 
 ```bash
-conda activate interactive-robotics
+conda activate home-robot
 python robot_interaction_demo.py
 ```
 
