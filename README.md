@@ -689,6 +689,11 @@ This environment supports:
 4. **Multi-Robot**: Collaborative manipulation scenarios
 5. **Real Robot Bridge**: Deploy to actual Stretch robot
 
+## 📚 Additional Documentation
+
+- **[Setup & Troubleshooting](docs/SETUP.md)** - GPU setup, common issues, environment configuration
+- **[Resources & Assets](docs/RESOURCES.md)** - Datasets, robot models, external resources
+
 ## 🤝 Contributing
 
 Contributions welcome! Areas of interest:
